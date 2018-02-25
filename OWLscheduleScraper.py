@@ -39,6 +39,8 @@ def get_next_match_UTC(match_times):
     # in millisecond precision
     current_time = datetime.now(timezone.utc).timestamp() * 1e3
     # get the next start time, millisecond precision
+    # this could be done more efficiently with bisect, but run times
+    # will be dominated by API calls anyway
     next_match = 0
     for match_time in match_times:
         if match_time[0] > current_time:
