@@ -53,7 +53,7 @@ def get_match_start_end(json_schedule):
                 )
     return match_times
 
-def get_next_match_UTC(match_times):
+def get_next_match_milli(match_times):
     # in millisecond precision
     current_time = get_current_time_in_milli()
     # get the next start time, millisecond precision
@@ -92,3 +92,5 @@ def pretty_print_match(competitors, next_match):
     print("From", get_time_in_UTC(start), "UTC",
           "to", get_time_in_UTC(finish), "UTC")
     print("=========================================================")
+
+    return
