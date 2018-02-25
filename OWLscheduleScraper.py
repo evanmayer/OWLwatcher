@@ -1,23 +1,24 @@
-#!/home/evanmayer/anaconda3/bin/python
+'''
+This module houses the code to query the OWL API for match times.
+'''
 
-import sys
 import urllib.request as ul
-import json
 from datetime import datetime, timezone
 
-def scrape_URL(url_string):
+def scrape_URL(url_string, file_write=False):
     '''
-    Courtesy https://www.summet.com/dmsi/html/readingTheWeb.html
+    https://docs.python.org/3/library/urllib.request.html#examples
     '''
     request = ul.Request(url_string)
-    response = ul.urlopen(request)
-    page = response.read()
-    text = page.decode()
+    with ul.urlopen(request) as response:
+        html_page = response.read()
+        page_text = html_page.decode()
 
-    with open('OWLdata.json', 'w') as f:
-        f.write(text)
+    if file_write:
+        with open('OWLdata.json', 'w') as f:
+            f.write(page_text)
 
-    return text
+    return page_text
 
 def get_match_start_end(json_schedule):
     '''
@@ -71,23 +72,3 @@ def pretty_print_match(competitors, next_match):
     print("| From", datetime.utcfromtimestamp(start),
           "to", datetime.utcfromtimestamp(finish))
     print("=================================================")
-
-if __name__ == '__main__':
-    if len(sys.argv) <= 1:
-        print("Specify a URL and whether to print to file.\n"
-              "Usage: ./OWLscheduleScraper.py <URL> <file_print=True, False>")
-        sys.exit(1)
-
-    # request from the OWL api page
-    url_string = str(sys.argv[1])
-    file_print = sys.argv[2]
-    text = scrape_URL(url_string)
-    # load to a json
-    schedule = json.loads(text)
-    # get data of interest
-    match_times = get_match_start_end(schedule)
-    next_match = get_next_match_UTC(match_times)
-    competitors = get_teams_playing_match(schedule, next_match[0])
-    # display
-    if file_print:
-        pretty_print_match(competitors, next_match)
