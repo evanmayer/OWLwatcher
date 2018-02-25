@@ -14,7 +14,7 @@ def scrape_URL(url_string):
     page = response.read()
     text = page.decode()
 
-    with open('test.txt', 'w') as f:
+    with open('OWLdata.json', 'w') as f:
         f.write(text)
 
     return text
@@ -63,12 +63,12 @@ def pretty_print_match(competitors, next_match):
     # convert OWL api milli timestamps to UNIX-format
     start = next_match[0] / 1e3
     finish = next_match[1] / 1e3
-    print("===============================================")
-    print("Next up:")
-    print(competitors[0], 'vs.', competitors[1])
-    print("From", datetime.utcfromtimestamp(start),
+    print("=================================================")
+    print("| Next up:")
+    print('|', competitors[0], 'vs.', competitors[1])
+    print("| From", datetime.utcfromtimestamp(start),
           "to", datetime.utcfromtimestamp(finish))
-    print("===============================================")
+    print("=================================================")
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
