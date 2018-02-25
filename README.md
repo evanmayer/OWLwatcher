@@ -13,6 +13,8 @@ Specify a URL to get match times from, a URL to open during the next match, and 
 `$ ./OWLwatcher.py <OWL API URL> <Twitch URL> <True, False>`
 
 ## Known dependencies:
+- Linux-based OS
+  - I use Ubuntu 16.04 on a VM, but any POSIX-compliant OS should be fine.
 - Python 3
   - sys
   - os
