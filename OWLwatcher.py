@@ -90,8 +90,10 @@ def try_to_watch_next_match(url_string, twitch_url, file_write):
     while not match_is_live(next_match):
         print("=========================================================")
         print("OWLwatcher:")
+        print("UTC is currently", 
+              scraper.get_time_in_UTC(scraper.get_current_time_in_milli()))
         print("Sleeping until next match...")
-        print("=========================================================")
+        scraper.pretty_print_match(competitors, next_match)
         time.sleep(10)
     # when live, start firefox
     start_firefox_while_live(next_match, competitors, twitch_url)
