@@ -26,3 +26,8 @@ Specify a URL to get match times from, a URL to open during the next match, and 
   - datetime
 - Firefox
   - Flash (for viewing Twitch streams in Firefox)
+
+## Known issues:
+- The logic for determine whether a match should be watched is a little wonky and can be trimmed some more. Currently I think 
+`try_to_watch_next_match()` ensures that the `else` clause of `start_firefox_while_live()` is never executed. This should have no impact on performance.
+- This is untested until matches begin on March 1, 2018.
