@@ -5,6 +5,23 @@ This module houses the code to query the OWL API for match times.
 import urllib.request as ul
 from datetime import datetime, timezone
 
+################################
+# Date/time format handlers
+################################
+def get_current_time_in_milli():
+    return datetime.now(timezone.utc).timestamp() * 1e3
+
+def get_time_in_UTC(timestamp):
+    # case: timestamp is in normal UNIX compatible precision
+    try:
+        return datetime.utcfromtimestamp(timestamp)
+    # case: timestamp is in OWL API ms precision. handle the error from datetime
+    except:
+        return datetime.utcfromtimestamp(timestamp / 1e3)
+
+################################
+# API URL scraping
+################################
 def scrape_URL(url_string, file_write=False):
     '''
     https://docs.python.org/3/library/urllib.request.html#examples
@@ -36,9 +53,6 @@ def get_match_start_end(json_schedule):
                 )
     return match_times
 
-def get_current_time_in_milli():
-    return datetime.now(timezone.utc).timestamp() * 1e3
-
 def get_next_match_UTC(match_times):
     # in millisecond precision
     current_time = get_current_time_in_milli()
@@ -65,13 +79,16 @@ def get_teams_playing_match(schedule, start_time):
                 teams = (competitor0, competitor1)
     return teams
 
+################################
+# Formatting
+################################
 def pretty_print_match(competitors, next_match):
     # convert OWL api milli timestamps to UNIX-format for display
     start = next_match[0] / 1e3
     finish = next_match[1] / 1e3
     print("=========================================================")
-    print("| Next up:")
-    print('|', competitors[0], 'vs.', competitors[1])
-    print("| From", datetime.utcfromtimestamp(start), "UTC",
-          "to", datetime.utcfromtimestamp(finish), "UTC")
+    print("Next up:")
+    print(competitors[0], 'vs.', competitors[1])
+    print("From", get_time_in_UTC(start), "UTC",
+          "to", get_time_in_UTC(finish), "UTC")
     print("=========================================================")
