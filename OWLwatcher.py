@@ -42,7 +42,7 @@ def start_firefox_while_live(next_match, competitors, url_string):
     if match_is_live(next_match):
         print("=========================================================")
         print("OWLwatcher:")
-        print("Match live! Opening", url_string, 'in Firefox.')
+        print("Match live! Opening\n", url_string, '\nin Firefox.')
         print("=========================================================")
 
         cmd = 'firefox ' + url_string
@@ -53,7 +53,7 @@ def start_firefox_while_live(next_match, competitors, url_string):
         while scraper.get_current_time_in_milli() < next_match[1]:
             print("OWLwatcher:")
             print("Match ongoing.")
-            time.sleep(30)
+            time.sleep(10)
 
         print("=========================================================")
         print("OWLwatcher:")
@@ -83,7 +83,7 @@ def try_to_watch_next_match(url_string, twitch_url, file_write):
     competitors = scraper.get_teams_playing_match(schedule, next_match[0])
 
     # only for spoofing an active match: this one is 60s long.
-    # next_match = (scraper.get_current_time_in_milli() - 1, 
+    # next_match = (scraper.get_current_time_in_milli() + (10 * 1e3), 
     #               scraper.get_current_time_in_milli() + (60 * 1e3))
 
     # wait for the next match to go live
@@ -92,7 +92,7 @@ def try_to_watch_next_match(url_string, twitch_url, file_write):
         print("OWLwatcher:")
         print("Sleeping until next match...")
         print("=========================================================")
-        time.sleep(60)
+        time.sleep(10)
     # when live, start firefox
     start_firefox_while_live(next_match, competitors, twitch_url)
 
