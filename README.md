@@ -12,4 +12,4 @@ Known dependencies:
   - urllib
   - datetime
 - Firefox
-  -Flash (for viewing Twitch streams in Firefox)
+  - Flash (for viewing Twitch streams in Firefox)
