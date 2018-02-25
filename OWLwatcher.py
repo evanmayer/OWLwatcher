@@ -82,7 +82,7 @@ def try_to_watch_next_match(url_string, twitch_url, file_write):
     next_match = scraper.get_next_match_milli(match_times)
     competitors = scraper.get_teams_playing_match(schedule, next_match[0])
 
-    # only for spoofing an active match: this one is 60s long.
+    # only for spoofing an active match: this one is ~a minute.
     # next_match = (scraper.get_current_time_in_milli() + (10 * 1e3), 
     #               scraper.get_current_time_in_milli() + (60 * 1e3))
 
