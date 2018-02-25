@@ -111,5 +111,3 @@ if __name__ == '__main__':
     file_write = sys.argv[3]
 
     try_to_watch_next_match(url_string, twitch_url, file_write)
-
-    return
