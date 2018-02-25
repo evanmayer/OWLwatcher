@@ -36,9 +36,12 @@ def get_match_start_end(json_schedule):
                 )
     return match_times
 
+def get_current_time_in_milli():
+    return datetime.now(timezone.utc).timestamp() * 1e3
+
 def get_next_match_UTC(match_times):
     # in millisecond precision
-    current_time = datetime.now(timezone.utc).timestamp() * 1e3
+    current_time = get_current_time_in_milli()
     # get the next start time, millisecond precision
     # this could be done more efficiently with bisect, but run times
     # will be dominated by API calls anyway
@@ -63,12 +66,12 @@ def get_teams_playing_match(schedule, start_time):
     return teams
 
 def pretty_print_match(competitors, next_match):
-    # convert OWL api milli timestamps to UNIX-format
+    # convert OWL api milli timestamps to UNIX-format for display
     start = next_match[0] / 1e3
     finish = next_match[1] / 1e3
-    print("=================================================")
+    print("=========================================================")
     print("| Next up:")
     print('|', competitors[0], 'vs.', competitors[1])
-    print("| From", datetime.utcfromtimestamp(start),
-          "to", datetime.utcfromtimestamp(finish))
-    print("=================================================")
+    print("| From", datetime.utcfromtimestamp(start), "UTC",
+          "to", datetime.utcfromtimestamp(finish), "UTC")
+    print("=========================================================")
