@@ -7,7 +7,9 @@ It is assumed that you have a Twitch account with credentials saved in Firefox o
 
 ## Usage:
 Specify a URL to get match times from, a URL to open during the next match, and whether to print the API .json to file.
+
 `$ chmod +x OWLwatcher.py`
+
 `$ ./OWLwatcher.py <OWL API URL> <Twitch URL> <True, False>`
 
 ## Known dependencies:
