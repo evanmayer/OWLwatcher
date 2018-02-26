@@ -39,37 +39,29 @@ def start_firefox_while_live(next_match, competitors, url_string):
     '''
     # if we are past the match start time, open firefox
     # With thanks to https://stackoverflow.com/a/4791612
-    if match_is_live(next_match):
-        print("=========================================================")
+    print("=========================================================")
+    print("OWLwatcher:")
+    print("Match live! Opening\n", url_string, '\nin Firefox.')
+    print("=========================================================")
+
+    cmd = 'firefox ' + url_string
+    p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                          preexec_fn=os.setsid, shell=True)
+
+    # check current time every 30s until match ends, then close firefox.
+    while scraper.get_current_time_in_milli() < next_match[1]:
         print("OWLwatcher:")
-        print("Match live! Opening\n", url_string, '\nin Firefox.')
-        print("=========================================================")
+        print("Match ongoing.")
+        time.sleep(10)
 
-        cmd = 'firefox ' + url_string
-        p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                              preexec_fn=os.setsid, shell=True)
+    print("=========================================================")
+    print("OWLwatcher:")
+    print("Match ended. Terminating Firefox.")
+    print("=========================================================")
 
-        # check current time every 30s until match ends, then close firefox.
-        while scraper.get_current_time_in_milli() < next_match[1]:
-            print("OWLwatcher:")
-            print("Match ongoing.")
-            time.sleep(10)
+    os.killpg(os.getpgid(p1.pid), signal.SIGTERM)
 
-        print("=========================================================")
-        print("OWLwatcher:")
-        print("Match ended. Terminating Firefox.")
-        print("=========================================================")
-
-        os.killpg(os.getpgid(p1.pid), signal.SIGTERM)
-
-        return
-    else:
-        print("=========================================================")
-        print("OWLwatcher:")
-        print("No match live.")
-        scraper.pretty_print_match(competitors, next_match)
-
-        return
+    return
 
 def try_to_watch_next_match(url_string, twitch_url, file_write):
     ## get match info
@@ -77,14 +69,11 @@ def try_to_watch_next_match(url_string, twitch_url, file_write):
     text = scraper.scrape_URL(url_string, file_write=False)
     # load to a json
     schedule = json.loads(text)
+
     # get data of interest; match times in OWL API millisecond precision
     match_times = scraper.get_match_start_end(schedule)
     next_match = scraper.get_next_match_milli(match_times)
     competitors = scraper.get_teams_playing_match(schedule, next_match[0])
-
-    # only for spoofing an active match: this one is ~a minute.
-    # next_match = (scraper.get_current_time_in_milli() + (10 * 1e3), 
-    #               scraper.get_current_time_in_milli() + (60 * 1e3))
 
     # wait for the next match to go live
     while not match_is_live(next_match):
@@ -95,8 +84,11 @@ def try_to_watch_next_match(url_string, twitch_url, file_write):
         print("Sleeping until next match...")
         scraper.pretty_print_match(competitors, next_match)
         time.sleep(10)
-    # when live, start firefox
+    # by necessity of sleep, this is only run when a match is live.
     start_firefox_while_live(next_match, competitors, twitch_url)
+
+    # when current match ends, find the next match ad infinitum
+    try_to_watch_next_match(url_string, twitch_url, file_write)
 
     return
 

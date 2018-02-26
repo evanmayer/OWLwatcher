@@ -2,6 +2,7 @@
 This module houses the code to query the OWL API for match times.
 '''
 
+import sys
 import urllib.request as ul
 from datetime import datetime, timezone
 
@@ -59,12 +60,12 @@ def get_next_match_milli(match_times):
     # get the next start time, millisecond precision
     # this could be done more efficiently with bisect, but run times
     # will be dominated by API calls anyway
-    next_match = 0
     for match_time in match_times:
         if match_time[0] > current_time:
-            next_match = match_time
-            break
-    return next_match
+            return match_time
+    # when we reach the last match time
+    print("No future matches in database.")
+    sys.exit(0)
 
 def get_teams_playing_match(schedule, start_time):
     # check the dict for a matching start_time
