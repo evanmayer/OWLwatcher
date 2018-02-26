@@ -63,7 +63,7 @@ def get_next_match_milli(match_times):
     for match_time in match_times:
         if match_time[0] > current_time:
             return match_time
-    # when we reach the last match time
+    # when we pass the last match time
     print("No future matches in database.")
     sys.exit(0)
 

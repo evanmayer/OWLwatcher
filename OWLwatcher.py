@@ -26,14 +26,14 @@ def match_is_live(next_match):
         return False
 
 
-def start_firefox_while_live(next_match, competitors, url_string):
+def start_firefox_while_live(next_match, competitors, api_url):
     '''
     start firefox if match is supposed to be live. Close when match ends.
     Inputs: 
         next_match: tuple of match start, match end timestamps in ms precision
         competitors: tuple of competitors participating in match. For next up
             logging.
-        url_string: the url for browser open
+        api_url: the url for browser open
     Returns:
         N/A
     '''
@@ -41,10 +41,10 @@ def start_firefox_while_live(next_match, competitors, url_string):
     # With thanks to https://stackoverflow.com/a/4791612
     print("=========================================================")
     print("OWLwatcher:")
-    print("Match live! Opening\n", url_string, '\nin Firefox.')
+    print("Match live! Opening\n", api_url, '\nin Firefox.')
     print("=========================================================")
 
-    cmd = 'firefox ' + url_string
+    cmd = 'firefox ' + api_url
     p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                           preexec_fn=os.setsid, shell=True)
 
@@ -63,10 +63,10 @@ def start_firefox_while_live(next_match, competitors, url_string):
 
     return
 
-def try_to_watch_next_match(url_string, twitch_url, file_write):
+def try_to_watch_next_match(api_url, twitch_url, file_write):
     ## get match info
     # request from the OWL api page
-    text = scraper.scrape_URL(url_string, file_write=False)
+    text = scraper.scrape_URL(api_url, file_write=False)
     # load to a json
     schedule = json.loads(text)
 
@@ -84,11 +84,11 @@ def try_to_watch_next_match(url_string, twitch_url, file_write):
         print("Sleeping until next match...")
         scraper.pretty_print_match(competitors, next_match)
         time.sleep(10)
-    # by necessity of sleep, this is only run when a match is live.
+    # Loop concludes when match goes live
     start_firefox_while_live(next_match, competitors, twitch_url)
 
     # when current match ends, find the next match ad infinitum
-    try_to_watch_next_match(url_string, twitch_url, file_write)
+    try_to_watch_next_match(api_url, twitch_url, file_write)
 
     return
 
@@ -100,8 +100,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # handle inputs
-    url_string = str(sys.argv[1])
+    api_url = str(sys.argv[1])
     twitch_url = sys.argv[2]
     file_write = sys.argv[3]
 
-    try_to_watch_next_match(url_string, twitch_url, file_write)
+    try_to_watch_next_match(api_url, twitch_url, file_write)
