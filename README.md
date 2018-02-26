@@ -1,5 +1,5 @@
 # OWLwatcher:
-Who watches the Overwatchers?
+Who watches the Overwatchers? Me. I never remember to open streams when matches go live. This program will do it for me.
 
 ## Assumptions:
 
