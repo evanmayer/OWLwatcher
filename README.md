@@ -28,5 +28,5 @@ Specify a URL to get match times from, a URL to open during the next match, and 
   - Flash (for viewing Twitch streams in Firefox)
 
 ## Known issues:
-- The shebang at the top of `OWLwatcher.py`, `#!/home/evanmayer/anaconda3/bin/python`, points to the anaconda Python 3 install on my system. Make sure it points to your Python 3 install if you are running it as an executable script from the command line.
+- The shebang at the top of `OWLwatcher.py`, `#!/home/evanmayer/anaconda3/bin/python`, points to the anaconda Python 3 install on my system. Make sure it points to your Python 3 install if you are running it as an executable script from the command line. You can usually find this with `which python`.
 - This is untested on real matches until OWL matches begin again on March 1, 2018 UTC. It has been tested in a limited fashion on fake hand written match data.
