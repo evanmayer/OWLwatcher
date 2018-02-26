@@ -48,7 +48,7 @@ def start_firefox_while_live(next_match, competitors, url_string):
     p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                           preexec_fn=os.setsid, shell=True)
 
-    # check current time every 30s until match ends, then close firefox.
+    # check current time every 10s until match ends, then close firefox.
     while scraper.get_current_time_in_milli() < next_match[1]:
         print("OWLwatcher:")
         print("Match ongoing.")
