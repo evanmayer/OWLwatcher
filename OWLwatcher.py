@@ -40,12 +40,12 @@ def start_firefox_while_live(current_match, competitors, api_url):
     # With thanks to https://stackoverflow.com/a/4791612
     print("=========================================================")
     print("OWLwatcher:")
-    print("Match live! Opening\n", api_url, '\nin Firefox.')
+    print("Match live! Opening\n", api_url, '\nin Chrome.')
     scraper.pretty_print_match(competitors, current_match)
 
 
-    cmd = 'firefox ' + api_url
-    p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+    cmd = 'google-chrome-stable ' + api_url + ' &>/dev/null'
+    p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                           preexec_fn=os.setsid, shell=True)
 
     # check current time every 10s until match ends, then close firefox.
