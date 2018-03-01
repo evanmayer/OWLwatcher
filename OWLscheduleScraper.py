@@ -67,6 +67,14 @@ def get_next_match_milli(match_times):
     print("No future matches in database.")
     sys.exit(0)
 
+def get_current_match_milli(match_times):
+    # in millisecond precision
+    current_time = get_current_time_in_milli()
+    for match_time in match_times:
+        if match_time[0] < current_time < match_time[1]:
+            return match_time
+    return None
+
 def get_teams_playing_match(schedule, start_time):
     # check the dict for a matching start_time
     teams = ()

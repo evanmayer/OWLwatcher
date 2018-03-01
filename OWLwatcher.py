@@ -15,18 +15,17 @@ import time
 import json
 import OWLscheduleScraper as scraper
 
-def match_is_live(next_match):
-    '''
-    check next_match against current timestamp * 1e3
-    '''
+def match_is_live(current_match):
     current_time = scraper.get_current_time_in_milli()
-    if current_time > next_match[0]:
+    if current_match == None:
+        return False
+    if current_time > current_match[0]:
         return True
     else:
         return False
 
 
-def start_firefox_while_live(next_match, competitors, api_url):
+def start_firefox_while_live(current_match, competitors, api_url):
     '''
     start firefox if match is supposed to be live. Close when match ends.
     Inputs: 
@@ -42,14 +41,15 @@ def start_firefox_while_live(next_match, competitors, api_url):
     print("=========================================================")
     print("OWLwatcher:")
     print("Match live! Opening\n", api_url, '\nin Firefox.')
-    print("=========================================================")
+    scraper.pretty_print_match(competitors, current_match)
+
 
     cmd = 'firefox ' + api_url
     p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                           preexec_fn=os.setsid, shell=True)
 
     # check current time every 10s until match ends, then close firefox.
-    while scraper.get_current_time_in_milli() < next_match[1]:
+    while scraper.get_current_time_in_milli() < current_match[1]:
         print("OWLwatcher:")
         print("Match ongoing.")
         time.sleep(10)
@@ -72,11 +72,13 @@ def try_to_watch_next_match(api_url, twitch_url, file_write):
 
     # get data of interest; match times in OWL API millisecond precision
     match_times = scraper.get_match_start_end(schedule)
+    current_match = scraper.get_current_match_milli(match_times)
     next_match = scraper.get_next_match_milli(match_times)
-    competitors = scraper.get_teams_playing_match(schedule, next_match[0])
+    competitors = scraper.get_teams_playing_match(schedule, current_match[0])
 
     # wait for the next match to go live
-    while not match_is_live(next_match):
+    while not match_is_live(current_match):
+        current_match = scraper.get_current_match_milli(match_times)
         print("=========================================================")
         print("OWLwatcher:")
         print("UTC is currently", 
@@ -85,7 +87,7 @@ def try_to_watch_next_match(api_url, twitch_url, file_write):
         scraper.pretty_print_match(competitors, next_match)
         time.sleep(10)
     # Loop concludes when match goes live
-    start_firefox_while_live(next_match, competitors, twitch_url)
+    start_firefox_while_live(current_match, competitors, twitch_url)
 
     # when current match ends, find the next match ad infinitum
     try_to_watch_next_match(api_url, twitch_url, file_write)
