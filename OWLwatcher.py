@@ -25,9 +25,9 @@ def match_is_live(current_match):
         return False
 
 
-def start_firefox_while_live(current_match, competitors, api_url):
+def start_browser_while_live(current_match, competitors, api_url):
     '''
-    start firefox if match is supposed to be live. Close when match ends.
+    start browser if match is supposed to be live. Close when match ends.
     Inputs: 
         next_match: tuple of match start, match end timestamps in ms precision
         competitors: tuple of competitors participating in match. For next up
@@ -87,7 +87,7 @@ def try_to_watch_next_match(api_url, twitch_url, file_write):
         scraper.pretty_print_match(competitors, next_match)
         time.sleep(10)
     # Loop concludes when match goes live
-    start_firefox_while_live(current_match, competitors, twitch_url)
+    start_browser_while_live(current_match, competitors, twitch_url)
 
     # when current match ends, find the next match ad infinitum
     try_to_watch_next_match(api_url, twitch_url, file_write)
