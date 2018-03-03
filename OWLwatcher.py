@@ -75,9 +75,9 @@ def try_to_watch_next_match(api_url, twitch_url, file_write):
     current_match = scraper.get_current_match_milli(match_times)
     next_match = scraper.get_next_match_milli(match_times)
     if match_is_live(current_match):
-        scraper.get_teams_playing_match(schedule, current_match[0])
-    else:
         competitors = scraper.get_teams_playing_match(schedule, current_match[0])
+    else:
+        competitors = scraper.get_teams_playing_match(schedule, next_match[0])
 
     # wait for the next match to go live
     while not match_is_live(current_match):
