@@ -73,7 +73,7 @@ def get_current_match_milli(match_times):
     for match_time in match_times:
         if match_time[0] < current_time < match_time[1]:
             return match_time
-    return None
+    return get_next_match_milli(match_times)
 
 def get_teams_playing_match(schedule, start_time):
     # check the dict for a matching start_time

@@ -40,11 +40,11 @@ def start_browser_while_live(current_match, competitors, api_url):
     # With thanks to https://stackoverflow.com/a/4791612
     print("=========================================================")
     print("OWLwatcher:")
-    print("Match live! Opening\n", api_url, '\nin Chrome.')
+    print("Match live! Opening\n", api_url)
     scraper.pretty_print_match(competitors, current_match)
 
 
-    cmd = 'google-chrome-stable ' + api_url + ' &>/dev/null'
+    cmd = 'firefox ' + api_url + ' &>/dev/null'
     p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                           preexec_fn=os.setsid, shell=True)
 
@@ -52,7 +52,7 @@ def start_browser_while_live(current_match, competitors, api_url):
     while scraper.get_current_time_in_milli() < current_match[1]:
         print("OWLwatcher:")
         print("Match ongoing.")
-        time.sleep(10)
+        time.sleep(60)
 
     print("=========================================================")
     print("OWLwatcher:")
@@ -74,7 +74,10 @@ def try_to_watch_next_match(api_url, twitch_url, file_write):
     match_times = scraper.get_match_start_end(schedule)
     current_match = scraper.get_current_match_milli(match_times)
     next_match = scraper.get_next_match_milli(match_times)
-    competitors = scraper.get_teams_playing_match(schedule, current_match[0])
+    if match_is_live(current_match):
+        scraper.get_teams_playing_match(schedule, current_match[0])
+    else:
+        competitors = scraper.get_teams_playing_match(schedule, current_match[0])
 
     # wait for the next match to go live
     while not match_is_live(current_match):
@@ -85,7 +88,7 @@ def try_to_watch_next_match(api_url, twitch_url, file_write):
               scraper.get_time_in_UTC(scraper.get_current_time_in_milli()))
         print("Sleeping until next match...")
         scraper.pretty_print_match(competitors, next_match)
-        time.sleep(10)
+        time.sleep(60)
     # Loop concludes when match goes live
     start_browser_while_live(current_match, competitors, twitch_url)
 
