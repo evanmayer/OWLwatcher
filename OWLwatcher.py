@@ -13,7 +13,7 @@ import time
 import json
 import datetime
 import urllib.request as urlreq
-# https://api.overwatchleague.com/live-match True
+
 ################################
 # Date/time format handlers
 ################################
@@ -91,7 +91,7 @@ def try_to_watch_next_match(api_url, file_write=False):
               get_time_in_UTC(get_current_time_in_milli()))
         print("Sleeping until next match...")
         pretty_print_match(current_match, competitors)
-        time.sleep(5. * 60.)
+        time.sleep(60.)
     # Loop concludes when match goes live
     watch_url = current_match['hyperlinks'][4].get('value')
     start_browser_while_live(current_match, competitors, watch_url)
@@ -147,7 +147,8 @@ def start_browser_while_live(current_match, competitors, watch_url):
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print("Specify a URL to get match times from, a URL to open during the"
-              "next match, and whether to print the API .json to file.\n" 
+              " next match, and whether to print the API .json to file.\n"
+              "Try: https://api.overwatchleague.com/live-match. \n" 
               "Usage: ./OWLwatcher.py <API_URL> <True, False>")
         sys.exit(1)
 
