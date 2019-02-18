@@ -6,29 +6,28 @@ already has user login info stored, and no login is required to watch the stream
 with the intended user logged in.
 '''
 import sys
-
 import os
 import signal
 import subprocess
 import time
-
-import urllib as ul
-
-
+import json
+import datetime
+import urllib.request as urlreq
+# https://api.overwatchleague.com/live-match True
 ################################
 # Date/time format handlers
 ################################
 def get_current_time_in_milli():
-    return datetime.now(timezone.utc).timestamp() * 1e3
+    return datetime.datetime.now(datetime.timezone.utc).timestamp() * 1e3
 
 
 def get_time_in_UTC(timestamp):
     # case: timestamp is in normal UNIX compatible precision
     try:
-        return datetime.utcfromtimestamp(timestamp)
+        return datetime.datetime.utcfromtimestamp(timestamp)
     # case: timestamp is in OWL API ms precision. handle the error from datetime
     except:
-        return datetime.utcfromtimestamp(timestamp / 1e3)
+        return datetime.datetime.utcfromtimestamp(timestamp / 1e3)
 
 
 ################################
@@ -38,8 +37,8 @@ def url_to_json(url_string, file_write=False):
     '''
     https://docs.python.org/3/library/urllib.request.html#examples
     '''
-    req = ul.request.Request(url_string)
-    with ul.urlopen(req) as response:
+    req = urlreq.Request(url_string)
+    with urlreq.urlopen(req) as response:
         html_page = response.read()
         page_text = html_page.decode()
 
@@ -55,12 +54,12 @@ def url_to_json(url_string, file_write=False):
 ################################
 # Formatting
 ################################
-def pretty_print_match(competitors):
+def pretty_print_match(current_match, competitors):
     # convert OWL api milli timestamps to UNIX-format for display
-    start = next_match[0] / 1e3
-    finish = next_match[1] / 1e3
+    start = current_match.get('startDateTS') / 1e3
+    finish = current_match.get('endDateTS') / 1e3
     print("=========================================================")
-    print("Next up:")
+    print("On deck:")
     print(competitors[0], 'vs.', competitors[1])
     print("From", get_time_in_UTC(start), "UTC",
           "to", get_time_in_UTC(finish), "UTC")
@@ -79,9 +78,8 @@ def try_to_watch_next_match(api_url, file_write=False):
     
     # Get the pending or the current ongoing match
     current_match = schedule['data'].get('liveMatch')
-    competitors = ( current_match['competitors']['0'].get('name'),
-                    current_match['competitors']['1'].get('name') )
-
+    competitors = ( current_match['competitors'][0].get('name'),
+                    current_match['competitors'][1].get('name') )
     # wait for the next match to go live
     liveStatus = current_match.get('liveStatus')
     print(liveStatus)
@@ -92,10 +90,10 @@ def try_to_watch_next_match(api_url, file_write=False):
         print("UTC is currently", 
               get_time_in_UTC(get_current_time_in_milli()))
         print("Sleeping until next match...")
-        pretty_print_match(competitors)
+        pretty_print_match(current_match, competitors)
         time.sleep(5. * 60.)
     # Loop concludes when match goes live
-    watch_url = current_match['hyperlinks']['4'].get('value')
+    watch_url = current_match['hyperlinks'][4].get('value')
     start_browser_while_live(current_match, competitors, watch_url)
 
     # when current match ends, find the next match ad infinitum
@@ -120,7 +118,7 @@ def start_browser_while_live(current_match, competitors, watch_url):
     print("=========================================================")
     print("OWLwatcher:")
     print("Match live! Opening\n", watch_url)
-    pretty_print_match(competitors, current_match)
+    pretty_print_match(current_match, competitors)
 
     cmd = 'firefox ' + watch_url + ' &>/dev/null'
     p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
@@ -131,7 +129,9 @@ def start_browser_while_live(current_match, competitors, watch_url):
         print("=========================================================")
         print("OWLwatcher:")
         print("Match ongoing:")
-        pretty_print_match(competitors)
+        pretty_print_match(current_match, competitors)
+        print("UTC is currently", 
+              get_time_in_UTC(get_current_time_in_milli()))
         time.sleep(60)
 
     print("=========================================================")
@@ -155,6 +155,4 @@ if __name__ == '__main__':
     api_url = str(sys.argv[1])
     file_write = sys.argv[2]
     
-    import cProfile
-
-    cProfile.run('try_to_watch_next_match(api_url, file_write=file_write)', 'time')
+    try_to_watch_next_match(api_url, file_write=file_write)
