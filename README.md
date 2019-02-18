@@ -28,5 +28,5 @@ Specify a URL to get match times from, a URL to open during the next match, and 
   - Flash (for viewing Twitch streams in Firefox)
 
 ## Known issues:
-- Recent updates to the OWL API appear to have enforced SSL checking on url requests (i.e. fine for your browser, not fine for the current implementation of the script). Until I'm comfortable with updating the script in a manner that will allow it to be deployed without creating more security vulnerabilities, the URL request will remain broken.
+- The OWL API is volatile and Blizzard makes no promises as to the stability of its structure or interfaces. As a result, this script may break without warning.
 - The shebang at the top of `OWLwatcher.py`, `#!/home/evanmayer/anaconda3/bin/python`, points to the anaconda Python 3 install on my system. Make sure it points to your Python 3 install if you are running it as an executable script from the command line. You can usually find this with `which python`.
