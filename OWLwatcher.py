@@ -33,10 +33,11 @@ def get_time_in_UTC(timestamp):
 ################################
 # API URL scraping
 ################################
-def url_to_json(url_string, file_write=False):
+def get_match_data(url_string, file_write=False):
     '''
     https://docs.python.org/3/library/urllib.request.html#examples
     '''
+    # Request raw text from the API page, load to a json
     req = urlreq.Request(url_string)
     with urlreq.urlopen(req) as response:
         html_page = response.read()
@@ -48,7 +49,10 @@ def url_to_json(url_string, file_write=False):
 
     schedule = json.loads(page_text)
 
-    return schedule
+    # Get the pending or the current ongoing match
+    current_match = schedule['data'].get('liveMatch')
+
+    return current_match
 
 
 ################################
@@ -69,46 +73,80 @@ def pretty_print_match(current_match, competitors):
 
 
 ################################
-# Implementation
+# Idle behavior cycles
 ################################
-def try_to_watch_next_match(api_url, file_write=False):
-    ## get match info
-    # request raw text from the OWL api page, load to a json
-    schedule = url_to_json(api_url, file_write=False)
-    
-    # Get the pending or the current ongoing match
-    current_match = schedule['data'].get('liveMatch')
-    competitors = ( current_match['competitors'][0].get('name'),
-                    current_match['competitors'][1].get('name') )
-    # wait for the next match to go live
-    liveStatus = current_match.get('liveStatus')
-    print(liveStatus)
 
+def wait_for_match_data(api_url, file_write=False):
+    # A loop to wait until  the live-match api field is populated
+    while not (get_match_data(api_url, file_write=file_write)):
+        print("=========================================================")
+        print("OWLwatcher:")
+        print("UTC is currently", 
+            get_time_in_UTC(get_current_time_in_milli()))
+        print("Sleeping until next match is available...")
+        time.sleep(60.)
+    return 
+
+
+def wait_for_match_live(api_url, file_write=False):
+    # A loop to wait until the live-match api field reports a live match
+    current_match = get_match_data(api_url, file_write=file_write)
+    liveStatus = current_match.get('liveStatus')
     while ('LIVE' != liveStatus):
         print("=========================================================")
         print("OWLwatcher:")
         print("UTC is currently", 
-              get_time_in_UTC(get_current_time_in_milli()))
-        print("Sleeping until next match...")
-        pretty_print_match(current_match, competitors)
+            get_time_in_UTC(get_current_time_in_milli()))
+        print("Sleeping until next match is goes live!")
         time.sleep(60.)
-    # Loop concludes when match goes live
-    watch_url = current_match['hyperlinks'][4].get('value')
-    start_browser_while_live(current_match, competitors, watch_url)
+        wait_for_match_live(api_url, file_write=file_write)
+    return
 
-    # when current match ends, find the next match ad infinitum
+
+def wait_for_match_end(current_match, competitors):
+    # check current time every 60s until match ends, then close browser.
+    while get_current_time_in_milli() < current_match.get('endDateTS'):
+        print("=========================================================")
+        print("OWLwatcher:")
+        print("Match ongoing:")
+        pretty_print_match(current_match, competitors)
+        print("UTC is currently", 
+              get_time_in_UTC(get_current_time_in_milli()))
+        time.sleep(60)
+    return
+
+
+################################
+# Implementation
+################################
+def try_to_watch_next_match(api_url, file_write=False):
+    # Wait until API reports a match is scheduled to go live
+    wait_for_match_data(api_url, file_write=file_write)
+    # Wait until API reports match has gone live
+    wait_for_match_live(api_url, file_write=file_write)
+    # Get the match json
+    current_match = get_match_data(api_url, file_write=file_write)
+    # Find out who's playing
+    competitors = ( current_match['competitors'][0].get('name'),
+                    current_match['competitors'][1].get('name') )
+    # Get an English Twitch link
+    watch_url = current_match['hyperlinks'][4].get('value')
+
+    # Open a method for watching the match
+    watch_match(current_match, competitors, watch_url)
+
+    # when current match ends, wait for the next match to start
     try_to_watch_next_match(api_url, file_write=file_write)
 
     return
 
 
-def start_browser_while_live(current_match, competitors, watch_url):
+def watch_match(current_match, competitors, watch_url):
     '''
     start browser if match is supposed to be live. Close when match ends.
     Inputs: 
         next_match: json storing current match data
-        competitors: tuple of competitors participating in match. For next up
-            logging.
+        competitors: tuple of competitors participating in match. 
         watch_url: the url for browser open
     Returns:
         N/A
@@ -124,15 +162,7 @@ def start_browser_while_live(current_match, competitors, watch_url):
     p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                           preexec_fn=os.setsid, shell=True)
 
-    # check current time every 10s until match ends, then close firefox.
-    while get_current_time_in_milli() < current_match.get('endDateTS'):
-        print("=========================================================")
-        print("OWLwatcher:")
-        print("Match ongoing:")
-        pretty_print_match(current_match, competitors)
-        print("UTC is currently", 
-              get_time_in_UTC(get_current_time_in_milli()))
-        time.sleep(60)
+    wait_for_match_end(current_match, competitors)
 
     print("=========================================================")
     print("OWLwatcher:")
