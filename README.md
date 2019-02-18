@@ -10,7 +10,7 @@ Specify a URL to get match times from, a URL to open during the next match, and 
 
 `$ chmod +x OWLwatcher.py`
 
-`$ ./OWLwatcher.py <OWL API URL> <Twitch URL> <True, False>`
+`$ ./OWLwatcher.py <OWL API URL> <True, False>`
 
 ## Known dependencies:
 - Linux-based OS
