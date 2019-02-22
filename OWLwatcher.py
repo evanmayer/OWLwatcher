@@ -130,7 +130,7 @@ def try_to_watch_next_match(api_url, file_write=False):
     competitors = ( current_match['competitors'][0].get('name'),
                     current_match['competitors'][1].get('name') )
     # Get an English Twitch link
-    watch_url = current_match['hyperlinks'][4].get('value')
+    watch_url = current_match['hyperlinks'][2].get('value')
 
     # Open a method for watching the match
     watch_match(current_match, competitors, watch_url)
