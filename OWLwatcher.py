@@ -99,7 +99,8 @@ def wait_for_match_live(api_url, file_write=False):
             get_time_in_UTC(get_current_time_in_milli()))
         print("Sleeping until next match is goes live!")
         time.sleep(60.)
-        wait_for_match_live(api_url, file_write=file_write)
+        current_match = get_match_data(api_url, file_write=file_write)
+        liveStatus = current_match.get('liveStatus')
     return
 
 
