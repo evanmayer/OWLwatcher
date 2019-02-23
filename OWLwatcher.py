@@ -131,7 +131,11 @@ def try_to_watch_next_match(api_url, file_write=False):
     competitors = ( current_match['competitors'][0].get('name'),
                     current_match['competitors'][1].get('name') )
     # Get an English Twitch link
-    watch_url = current_match['hyperlinks'][2].get('value')
+    # Search for it among the available links
+    all_links = current_match['hyperlinks']
+    for link in all_links:
+        if ( ('en' == link.get('contentLanguage') and ('TWITCH_ACCOUNT' == link.get('type')) ):
+            watch_url = link.get('value')
 
     # Open a method for watching the match
     watch_match(current_match, competitors, watch_url)
