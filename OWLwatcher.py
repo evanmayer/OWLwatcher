@@ -134,7 +134,7 @@ def try_to_watch_next_match(api_url, file_write=False):
     # Search for it among the available links
     all_links = current_match['hyperlinks']
     for link in all_links:
-        if ( ('en' == link.get('contentLanguage') and ('TWITCH_ACCOUNT' == link.get('type')) ):
+        if ( 'en' == link.get('contentLanguage') and 'TWITCH_ACCOUNT' == link.get('type') ):
             watch_url = link.get('value')
 
     # Open a method for watching the match
