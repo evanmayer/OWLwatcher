@@ -97,7 +97,7 @@ def wait_for_match_live(api_url, file_write=False):
         print("OWLwatcher:")
         print("UTC is currently", 
             get_time_in_UTC(get_current_time_in_milli()))
-        print("Sleeping until next match is goes live!")
+        print("Sleeping until next match goes live!")
         time.sleep(60.)
         current_match = get_match_data(api_url, file_write=file_write)
         liveStatus = current_match.get('liveStatus')
@@ -109,10 +109,11 @@ def wait_for_match_end(current_match, competitors):
     while get_current_time_in_milli() < current_match.get('endDateTS'):
         print("=========================================================")
         print("OWLwatcher:")
-        print("Match ongoing:")
-        pretty_print_match(current_match, competitors)
         print("UTC is currently", 
               get_time_in_UTC(get_current_time_in_milli()))
+        print("Match ongoing:")
+        pretty_print_match(current_match, competitors)
+        
         time.sleep(60)
     return
 
